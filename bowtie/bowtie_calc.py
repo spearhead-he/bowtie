@@ -4,7 +4,7 @@ A module for the bow-tie (https://www.utupub.fi/handle/10024/152846 and referenc
 analysis of a response function of a particle instrument.
 """
 __author__ = "Philipp Oleynik"
-__credits__ = ["Philipp Oleynik"]
+__credits__ = ["Philipp Oleynik", "Christian Palmroos"]
 
 import math
 from matplotlib import rcParams

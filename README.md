@@ -12,7 +12,7 @@
 
 ## About
 
-This analysis tool runs a bow-tie analysis ([Van Allen et al. 1974](https://doi.org/10.1029/JA079i025p03559)) for the energy channels of a generic particle instrument. The input is a csv table of channel responses indexed by the incident energy. The results of analysis are the geometric factor (with errors) and the effective energy of the channel.
+This analysis tool runs a bow-tie analysis ([Van Allen et al. 1974](https://doi.org/10.1029/JA079i025p03559)) for the energy channels of a generic particle instrument. The input is a CSV table of channel responses indexed by the incident energy. The analysis results are the geometric factor (with errors) and the effective energy of the channel. The analysis description may be found here ([A description of the BepiColombo/SIXS-P cruise phase data product](https://doi.org/10.5281/zenodo.13692883)). The instrument response may be obtained by simulation, analytical model, or measurement and presented as a discrete function on an energy grid. The only requirement is that the grid must be monotonously ascending.
 
 *Tested in Ubuntu 20.04.6 LTS with Python version 3.12.8.*
 
@@ -21,19 +21,21 @@ This analysis tool runs a bow-tie analysis ([Van Allen et al. 1974](https://doi.
 1. This tool requires a recent Python (>=3.10) installation. [Following SunPy's approach, we recommend installing Python via miniforge (click for instructions).](https://docs.sunpy.org/en/stable/tutorial/installation.html#installing-python)
 2. [Download this file](https://github.com/spearhead-he/bowtie/archive/refs/heads/main.zip) and extract to a folder of your choice (or clone the repository [https://github.com/spearhead-he/bowtie](https://github.com/spearhead-he/bowtie) if you know how to use `git`).
 3. Open a terminal or the miniforge prompt and move to the directory where the code is.
-4. *(Optional, but strongly recommended)* Create a new virtual environment (e.g., `conda create --name bowtie`, or `python -m venv venv_bowtie_tool` if you don't use miniforge/conda) and activate it (e.g., `conda activate bowtie`, or `source venv_bowtie_tool/bin/activate` if you don't use miniforge/conda).
-5. Install the Python dependencies from the *requirements.txt* file with `pip install -r requirements.txt`
+4. *(Strongly recommended)* Create a new virtual environment (e.g., `conda create --name bowtie` or `python -m venv venv_bowtie_tool` if you don't use miniforge/conda) and activate it (e.g., `conda activate bowtie`, or `source venv_bowtie_tool/bin/activate` if you don't use miniforge/conda).
+5. Install the Python dependencies from the *requirements.txt* file with `pip install -r requirements.txt` within the virtual environment. You can also pass "--user --break-system-packages" options **if you know well** what you are doing to install in your ~/.local/.
 6. Open the Jupyter Notebook by running `jupyter-lab bowtie_example.ipynb`
 
 ## How to use
 
-The Notebook is a simple example that also acts as a tutorial to teach the user on how to run the bow-tie analysis with this tool.
+The Notebook is a simple example that also acts as a tutorial to teach the user how to run the bow-tie analysis with this tool.
 
-The tool operates with two main classes, which are called `Bowtie` and `Spectra`. `Bowtie` stores response functions and contains the methods to run bow-tie analysis, while `Spectra` contains the information of the spectral indices and the amount of different spectra that are used in the bow-tie calculation.
+The instrument response function(s) must be stored in a CSV file. The first column is the midpoint of the energy bin. The next columns are the response functions of the particle instrument. 
+
+The tool operates with two main classes, which are called `Bowtie` and `Spectra`. `Bowtie` stores response functions and contains the methods to run bow-tie analysis, while `Spectra` contains information on the spectral indices and the amount of different spectra that are used in the bow-tie calculation.
 
 ### Bowtie
 ---
-The `Bowtie` class contains the data that the bow-tie analysis is applied on, and the energy range to be considered in the calculations. Its methods make running analysis easy and straightforward.
+The `Bowtie` class contains the data that the bow-tie analysis is applied to and the energy range to be considered in the calculations. Its methods make running analysis easy and straightforward.
 
 Methods:
 #
