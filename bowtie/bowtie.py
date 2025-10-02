@@ -11,6 +11,7 @@ import pandas as pd
 
 from . import bowtie_util as btutil
 from . import bowtie_calc
+from . import validations as validate
 from .spectra import Spectra
 
 RESPONSE_INDEX_COL = "incident_energy"
@@ -21,7 +22,7 @@ class Bowtie:
     """
 
     def __init__(self, energy_min:float, energy_max:float, data:pd.DataFrame,
-                 integral_bowtie:bool=False, sigma:int=3) -> None:
+                sigma:int=3) -> None:
 
         if isinstance(data,pd.DataFrame):
             self.data = data
@@ -31,8 +32,8 @@ class Bowtie:
 
         self.energy_min = energy_min
         self.energy_max = energy_max
-        self.integral_bowtie = integral_bowtie
         self.sigma = sigma
+
 
     def set_energy_range(self, energy_min:float, energy_max:float) -> None:
         """
@@ -41,8 +42,9 @@ class Bowtie:
         self.energy_min = energy_min
         self.energy_max = energy_max
 
+
     def bowtie_analysis(self, channel:str, spectra:Spectra, plot:bool=False,
-                        geom_factor_confidence:float=0.9, integral_bowtie:bool=None) -> dict:
+                        geom_factor_confidence:float=0.9, bowtie_method:str="differential") -> dict:
         """
         Runs bowtie analysis to a channel.
 
@@ -52,27 +54,24 @@ class Bowtie:
         spectra : {bowtie.Spectra}
         plot : {bool}
         geom_factor_confidence : {float} Float between 0-1.
-        integral_bowtie : {bool}
+        bowtie_method : {str} Method of bowtie analysis, either 'differential' (default) or 'integral'.
         """
 
         # Check that the channel is valid
-        if channel not in self.data.columns:
-            raise ValueError(f"Channel {channel} not found in response dataframe!")
+        validate.validate_channel(channel=channel, dataframe=self.data)
+
+        # Check that the input spectra is valid (also that it has a power law spectra)
+        validate.validate_spectra(spectra=spectra)
+
+        # Validate bowtie mewthod
+        validate.validate_bowtie_method(bowtie_method=bowtie_method)
 
         # Choose the correct response from the matrix
         for response in self.response_matrix:
             if response["name"]==channel:
                 response_dict = response
 
-        # Check that the input spectra is valid (it has a power law spectra)
-        if not isinstance(spectra,Spectra): 
-            raise TypeError(f"Input spectra needs to be a Spectra-type of object, not {type(spectra)}!")
-        if not hasattr(spectra, "power_law_spectra"):
-            raise AttributeError("Produce power law spectra with Spectra.produce_power_law_spectra() to calculate bowtie!")
-
-        # Use the default choice for integral bowtie if not provided
-        if integral_bowtie is None:
-            integral_bowtie = self.integral_bowtie
+        use_integral_bowtie = False if bowtie_method=="differential" else True
 
         # The bowtie_results are in order:
         # Geometric factor (G \Delta E) in cm2srMeV : {float}
@@ -83,12 +82,12 @@ class Bowtie:
         # if plot, also returns fig and axes
         bowtie_results = bowtie_calc.calculate_bowtie_gf(response_data=response_dict, spectra=spectra,
                                                     emin=self.energy_min, emax=self.energy_max,
-                                                    use_integral_bowtie=integral_bowtie,
+                                                    use_integral_bowtie=use_integral_bowtie,
                                                     sigma=self.sigma, plot=plot, gfactor_confidence_level=geom_factor_confidence,
                                                     return_gf_stddev=True, channel=channel)
 
         # Collect the results to a dictionary for easier handling
-        energy_id = "effective_energy" if not integral_bowtie else "threshold_energy"
+        energy_id = "effective_energy" if bowtie_method=="differential" else "threshold_energy"
         result_dict = {}
         result_names = ["geometric_factor", "geometric_factor_errors", energy_id,\
                         "effective_lower_boundary", "effective_upper_boundary"]
@@ -115,8 +114,9 @@ class Bowtie:
 
         return result_dict
 
-    def bowtie_analysis_full_stack(self, spectra, plot:bool=False,
-                                   geom_factor_confidence:float=0.9) -> list[dict]:
+
+    def bowtie_analysis_full_stack(self, spectra:Spectra, plot:bool=False,
+                                   geom_factor_confidence:float=0.9, bowtie_method:str="differential") -> list[dict]:
         """
         Wrapper for bowtie_analysis(). Runs bowtie_analysis() for all of the 
         given channels in bowtie.data
@@ -127,7 +127,7 @@ class Bowtie:
         for channel in self.data.columns:
 
             new_result = self.bowtie_analysis(channel=channel, spectra=spectra, plot=plot,
-                                              geom_factor_confidence=geom_factor_confidence)
+                                              geom_factor_confidence=geom_factor_confidence, bowtie_method=bowtie_method)
 
             all_bowtie_results.append(new_result)
 

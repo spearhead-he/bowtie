@@ -67,7 +67,7 @@ def test_bowtie():
     # Finally check the last result (which now is for an integral channel)
     integral_channel = "boxcar4"
     b4_results = bowtie.bowtie_analysis(channel=integral_channel, spectra=spectra, 
-                                        plot=False, integral_bowtie=True)
+                                        plot=False, bowtie_method="integral")
 
     assert math.isclose(b4_results['geometric_factor'], 0.9927950947299083)
     assert math.isclose(b4_results['geometric_factor_errors']['gfup'], np.float64(0.0030737165893933716))

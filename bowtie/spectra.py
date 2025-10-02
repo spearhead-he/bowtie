@@ -9,6 +9,7 @@ import numpy as np
 
 from . import bowtie_util
 from . import bowtie_calc 
+from . import validations as validate
 
 class Spectra:
     """
@@ -30,7 +31,7 @@ class Spectra:
         return f"{self.gamma_steps} spectra ranging from gamma={self.gamma_min} to gamma={self.gamma_max}."
 
 
-    def set_spectral_indices(self, gamma_min, gamma_max) -> None:
+    def set_spectral_indices(self, gamma_min:float, gamma_max:float) -> None:
         """
         Sets the limits of spectra. gamma_min < gamma_max
         """
@@ -46,15 +47,13 @@ class Spectra:
         """
 
         # The incident energies are needed in a specific format, which is taken care of here.
+        validate.validate_response_df_and_grid(response_df=response_df, energy_grid=energy_grid)
+
         if response_df is not None:
             response_matrix = bowtie_util.assemble_response_matrix(response_df=response_df)
             grid = response_matrix[0]["grid"]
-
-        elif energy_grid is not None:
-            grid = energy_grid
-
         else:
-            raise TypeError("Either 'response_df' or 'energy_grid' must be provided!")
+            grid = energy_grid
 
         # Generates the power law spectra
         power_law_spectra = bowtie_calc.generate_exppowlaw_spectra(energy_grid_dict=grid, gamma_pow_min=self.gamma_min,

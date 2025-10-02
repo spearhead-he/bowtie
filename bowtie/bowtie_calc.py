@@ -56,7 +56,7 @@ def plot_multi_geometric(geometric_factors, response_data,
 
     if integral:
         ax.set_ylabel(r'G(E) [cm$^2$ sr]', fontsize=DEFAULT_AXIS_LABEL_SIZE, color='black')
-        subax.set_xlabel(r'Threshold energy, MeV', fontsize=DEFAULT_AXIS_LABEL_SIZE, color='black')
+        subax.set_xlabel(r'Threshold energy [MeV]', fontsize=DEFAULT_AXIS_LABEL_SIZE, color='black')
     else:
         ax.set_ylabel(r'G$\delta$E [cm$^2$ sr MeV]', fontsize=DEFAULT_AXIS_LABEL_SIZE, color='black')
         subax.set_xlabel(r'Effective energy [MeV]', fontsize=DEFAULT_AXIS_LABEL_SIZE, color='black')
